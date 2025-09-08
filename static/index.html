@@ -5,402 +5,668 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LZPU</title>
     <link rel="icon" href="/LZPU.png" type="image/jpeg">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .title {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 2.2rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .controls-container {
+            flex: 1;
+            min-width: 400px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .result-container {
+            flex: 1;
+            min-width: 400px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        h2 {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            font-size: 1.5rem;
+        }
+        
+        .api-key-section input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .api-key-section input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .upload-area p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .upload-area span {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        #image-upload {
+            display: none;
+        }
+        
+        #thumbnails-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        #prompt-input {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            resize: vertical;
+        }
+        
+        #prompt-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        #generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #ff8c00, #ff0080);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-text {
+            display: block;
+        }
+        
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .spinner.hidden {
+            display: none;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
             }
-            .scrollbar-hide {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
+        }
+        
+        #result-image-container {
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        #result-image-container img {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        #result-image-container p {
+            text-align: center;
+            opacity: 0.7;
+        }
+        
+        /* 历史记录区域 */
+        .history-container {
+            max-width: 1400px;
+            margin: 40px auto 0;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .history-controls button {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+        
+        .history-controls button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .history-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .history-thumbnail {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .history-info {
+            padding: 12px;
+        }
+        
+        .history-prompt {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .history-date {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: rgba(30, 30, 40, 0.95);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+        }
+        
+        .modal-image {
+            max-width: 100%;
+            max-height: 60vh;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            align-self: center;
+        }
+        
+        .modal-prompt {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .empty-history {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 900px) {
+            .main-container {
+                flex-direction: column;
             }
-            .scrollbar-hide::-webkit-scrollbar {
-                display: none;
+            
+            .controls-container, .result-container {
+                min-width: 100%;
             }
-            .history-item-hover {
-                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            
+            .title {
+                font-size: 1.8rem;
             }
         }
     </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#165DFF',
-                        secondary: '#36BFFA',
-                        neutral: '#F5F7FA',
-                        dark: '#1D2129',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
 </head>
-<body class="bg-gray-50 font-sans text-dark">
-    <header class="bg-white shadow-sm py-4 px-6 md:px-12">
-        <h1 class="title text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-primary text-center">
-            🇨🇳柳州职业技术大学 AI商业应用模型测试版V0.9
-        </h1>
-        <p class="subtitle text-center text-gray-600 mt-2">
-            (AI数字创意与传播中心与广西心象映画文化发展有限公司共同研发)
-        </p>
-    </header>
-
-    <!-- 历史记录面板切换按钮 -->
-    <button id="history-toggle" class="fixed top-20 right-4 md:top-24 md:right-8 bg-primary text-white p-3 rounded-full shadow-lg z-50">
-        <i class="fas fa-history"></i>
-        <span class="history-count bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center absolute -top-1 -right-1">0</span>
-    </button>
-
-    <!-- 历史记录面板 -->
-    <div id="history-panel" class="fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-40 overflow-hidden flex flex-col">
-        <div class="p-4 border-b flex justify-between items-center">
-            <h2 class="text-xl font-bold text-primary">历史生成记录</h2>
-            <button id="close-history" class="text-gray-500 hover:text-gray-800">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-        
-        <div id="history-list" class="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-3">
-            <p class="text-gray-500 text-center py-8">暂无历史记录</p>
-        </div>
-        
-        <div class="p-4 border-t">
-            <button id="clear-history" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
-                <i class="fas fa-trash-alt mr-2"></i> 清空历史记录
-            </button>
-        </div>
-    </div>
-
-    <!-- 历史详情模态框 -->
-    <div id="history-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row">
-            <div class="p-4 border-b md:border-b-0 md:border-r flex justify-between items-center md:w-1/3">
-                <h3 class="font-bold text-lg">历史详情</h3>
-                <button id="close-detail" class="text-gray-500 hover:text-gray-800">
-                    <i class="fas fa-times"></i>
-                </button>
+<body>
+    <h1 class="title">🇨🇳柳州职业技术大学 AI商业应用模型测试版V0.9</h1>
+    <p class="subtitle">(AI数字创意与传播中心与广西心象映画文化发展有限公司共同研发)</p>
+    
+    <div class="main-container">
+        <div class="controls-container">
+            <div class="api-key-section">
+                <h2>设置</h2>
+                <input type="password" id="api-key-input" placeholder="输入你的 OpenRouter API 密钥 (必填)">
             </div>
-            <div class="flex-1 overflow-y-auto p-4">
-                <div class="mb-4">
-                    <h4 class="text-sm font-semibold text-gray-500 mb-1">生成时间</h4>
-                    <p id="detail-time" class="text-sm"></p>
-                </div>
-                <div class="mb-4">
-                    <h4 class="text-sm font-semibold text-gray-500 mb-1">提示词</h4>
-                    <p id="detail-prompt" class="text-sm bg-gray-50 p-3 rounded-lg"></p>
-                </div>
-                <div>
-                    <h4 class="text-sm font-semibold text-gray-500 mb-1">生成结果</h4>
-                    <div id="detail-image" class="mt-2 flex justify-center">
-                        <img src="" alt="历史生成图片" class="max-w-full max-h-[50vh] object-contain rounded-lg">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <main class="main-container px-4 py-8 max-w-7xl mx-auto">
-        <div class="controls-container bg-white rounded-xl shadow-md p-6 md:p-8 mb-8">
-            <div class="api-key-section mb-8">
-                <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
-                    <i class="fas fa-cog text-primary mr-2"></i>设置秘钥
-                </h2>
-                <input type="password" id="api-key-input" placeholder="请输入柳职大AIGC项目组密钥 (必填)" 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none">
-            </div>
-
-            <div class="upload-section mb-8">
-                <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
-                    <i class="fas fa-upload text-primary mr-2"></i>1. 上传图片
-                </h2>
-                <div class="upload-area border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer bg-gray-50">
-                    <input type="file" id="image-upload" accept="image/*" multiple class="hidden">
-                    <label for="image-upload" class="cursor-pointer">
-                        <i class="fas fa-image text-4xl text-gray-400 mb-3"></i>
-                        <p class="text-gray-700 font-medium">点击或拖拽上传</p>
-                        <span class="text-gray-500 text-sm">支持多张图片</span>
+            <div class="upload-section">
+                <h2>1. 上传图片</h2>
+                <div class="upload-area">
+                    <input type="file" id="image-upload" accept="image/*" multiple>
+                    <label for="image-upload">
+                        <p>点击或拖拽上传</p>
+                        <span>支持多张图片</span>
                     </label>
                 </div>
-                <div id="thumbnails-container" class="mt-4 flex flex-wrap gap-3"></div>
+                <div id="thumbnails-container"></div>
             </div>
 
-            <div class="prompt-section mb-6">
-                <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
-                    <i class="fas fa-comment text-primary mr-2"></i>2. 输入提示词
-                </h2>
-                <textarea id="prompt-input" placeholder="例如：一只穿着超级英雄斗篷的猫，电影级灯光" 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none min-h-[100px] resize-y"></textarea>
+            <div class="prompt-section">
+                <h2>2. 输入提示词</h2>
+                <textarea id="prompt-input" placeholder="例如：一只穿着超级英雄斗篷的猫，电影级灯光"></textarea>
             </div>
 
-            <button id="generate-btn" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center justify-center">
+            <button id="generate-btn">
                 <span class="btn-text">生成</span>
-                <span class="spinner hidden ml-2">
-                    <i class="fas fa-spinner fa-spin"></i>
-                </span>
+                <span class="spinner hidden"></span>
             </button>
         </div>
 
-        <div class="result-container bg-white rounded-xl shadow-md p-6 md:p-8">
-            <h2 class="text-xl font-bold mb-6 text-gray-800 flex items-center">
-                <i class="fas fa-image text-primary mr-2"></i>生成结果
-            </h2>
-            <div id="result-image-container" class="border border-gray-200 rounded-lg p-8 text-center min-h-[300px] flex items-center justify-center">
-                <p class="text-gray-500">生成的图片将显示在这里</p>
+        <div class="result-container">
+            <h2>生成结果</h2>
+            <div id="result-image-container">
+                <p>生成的图片将显示在这里</p>
             </div>
         </div>
-    </main>
+    </div>
+    
+    <!-- 新增的历史记录区域 -->
+    <div class="history-container">
+        <div class="history-header">
+            <h2>历史生成结果</h2>
+            <div class="history-controls">
+                <button id="clear-history">清除历史</button>
+            </div>
+        </div>
+        <div class="history-grid" id="history-grid">
+            <div class="empty-history">暂无历史记录，生成图片后将显示在这里</div>
+        </div>
+    </div>
+    
+    <!-- 图片查看模态框 -->
+    <div class="modal" id="image-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">历史生成详情</div>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img class="modal-image" id="modal-image" src="" alt="历史图片">
+                <div class="modal-prompt" id="modal-prompt"></div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // 历史记录管理
-        const HistoryManager = {
-            // 保存历史记录
-            saveHistory: function(prompt, imageUrl) {
-                const history = {
-                    id: Date.now(), // 使用时间戳作为唯一ID
-                    prompt: prompt,
-                    imageUrl: imageUrl,
-                    timestamp: new Date().toLocaleString()
-                };
-
-                // 从localStorage获取现有历史
-                let histories = this.getHistories();
-                // 添加新记录到开头
-                histories.unshift(history);
-                // 限制历史记录数量为20条
-                if (histories.length > 20) {
-                    histories = histories.slice(0, 20);
-                }
-                // 保存回localStorage
-                localStorage.setItem('imageGenerationHistory', JSON.stringify(histories));
+        // 模拟生成函数 - 实际项目中应替换为真实的API调用
+        function generateImage(apiKey, prompt, images) {
+            return new Promise((resolve) => {
+                // 模拟API调用延迟
+                setTimeout(() => {
+                    // 创建一个虚拟的图片URL
+                    const imageUrl = `https://picsum.photos/600/400?random=${Math.floor(Math.random() * 1000)}`;
+                    resolve({
+                        imageUrl: imageUrl,
+                        prompt: prompt
+                    });
+                }, 2000);
+            });
+        }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            const apiKeyInput = document.getElementById('api-key-input');
+            const imageUpload = document.getElementById('image-upload');
+            const thumbnailsContainer = document.getElementById('thumbnails-container');
+            const promptInput = document.getElementById('prompt-input');
+            const generateBtn = document.getElementById('generate-btn');
+            const resultImageContainer = document.getElementById('result-image-container');
+            const historyGrid = document.getElementById('history-grid');
+            const clearHistoryBtn = document.getElementById('clear-history');
+            const imageModal = document.getElementById('image-modal');
+            const modalImage = document.getElementById('modal-image');
+            const modalPrompt = document.getElementById('modal-prompt');
+            const closeModal = document.querySelector('.close-modal');
+            
+            let uploadedImages = [];
+            let history = JSON.parse(localStorage.getItem('aiHistory')) || [];
+            
+            // 初始化历史记录显示
+            renderHistory();
+            
+            // 图片上传处理
+            imageUpload.addEventListener('change', function(e) {
+                const files = Array.from(e.target.files);
+                uploadedImages = [];
+                thumbnailsContainer.innerHTML = '';
                 
-                // 更新UI
-                this.renderHistoryList();
-                this.updateHistoryCount();
-            },
-
-            // 获取所有历史记录
-            getHistories: function() {
-                const histories = localStorage.getItem('imageGenerationHistory');
-                return histories ? JSON.parse(histories) : [];
-            },
-
-            // 清除所有历史记录
-            clearHistories: function() {
-                localStorage.removeItem('imageGenerationHistory');
-                this.renderHistoryList();
-                this.updateHistoryCount();
-            },
-
-            // 根据ID获取历史记录
-            getHistoryById: function(id) {
-                const histories = this.getHistories();
-                return histories.find(history => history.id === id);
-            },
-
-            // 渲染历史记录列表
-            renderHistoryList: function() {
-                const historyList = document.getElementById('history-list');
-                const histories = this.getHistories();
-
-                if (histories.length === 0) {
-                    historyList.innerHTML = '<p class="text-gray-500 text-center py-8">暂无历史记录</p>';
+                files.forEach(file => {
+                    if (file.type.match('image.*')) {
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.classList.add('thumbnail');
+                            thumbnailsContainer.appendChild(img);
+                            
+                            uploadedImages.push(e.target.result);
+                        };
+                        
+                        reader.readAsDataURL(file);
+                    }
+                });
+            });
+            
+            // 生成按钮点击事件
+            generateBtn.addEventListener('click', async function() {
+                const apiKey = apiKeyInput.value.trim();
+                const prompt = promptInput.value.trim();
+                
+                if (!apiKey) {
+                    alert('请输入API密钥');
                     return;
                 }
-
-                historyList.innerHTML = '';
-                histories.forEach(history => {
-                    const historyItem = document.createElement('div');
-                    historyItem.className = 'border border-gray-200 rounded-lg overflow-hidden history-item-hover cursor-pointer';
-                    historyItem.innerHTML = `
-                        <div class="flex">
-                            <div class="w-1/3 bg-gray-100">
-                                <img src="${history.imageUrl}" alt="生成图片预览" class="w-full h-full object-cover">
-                            </div>
-                            <div class="w-2/3 p-3">
-                                <p class="text-sm font-medium truncate">${history.prompt}</p>
-                                <p class="text-xs text-gray-500 mt-1">${history.timestamp}</p>
-                            </div>
-                        </div>
-                    `;
-                    historyItem.addEventListener('click', () => {
-                        this.showHistoryDetail(history.id);
-                    });
-                    historyList.appendChild(historyItem);
-                });
-            },
-
-            // 显示历史记录详情
-            showHistoryDetail: function(id) {
-                const history = this.getHistoryById(id);
-                if (!history) return;
-
-                document.getElementById('detail-time').textContent = history.timestamp;
-                document.getElementById('detail-prompt').textContent = history.prompt;
-                document.getElementById('detail-image').querySelector('img').src = history.imageUrl;
-
-                document.getElementById('history-detail-modal').classList.remove('hidden');
-            },
-
-            // 更新历史记录数量显示
-            updateHistoryCount: function() {
-                const count = this.getHistories().length;
-                document.querySelector('.history-count').textContent = count;
-            }
-        };
-
-        // DOM元素
-        const apiKeyInput = document.getElementById('api-key-input');
-        const imageUpload = document.getElementById('image-upload');
-        const thumbnailsContainer = document.getElementById('thumbnails-container');
-        const promptInput = document.getElementById('prompt-input');
-        const generateBtn = document.getElementById('generate-btn');
-        const btnText = document.querySelector('.btn-text');
-        const spinner = document.querySelector('.spinner');
-        const resultImageContainer = document.getElementById('result-image-container');
-        const historyToggle = document.getElementById('history-toggle');
-        const historyPanel = document.getElementById('history-panel');
-        const closeHistory = document.getElementById('close-history');
-        const clearHistory = document.getElementById('clear-history');
-        const historyDetailModal = document.getElementById('history-detail-modal');
-        const closeDetail = document.getElementById('close-detail');
-
-        // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            // 加载历史记录
-            HistoryManager.renderHistoryList();
-            HistoryManager.updateHistoryCount();
-            
-            // 尝试从localStorage加载API密钥
-            const savedApiKey = localStorage.getItem('savedApiKey');
-            if (savedApiKey) {
-                apiKeyInput.value = savedApiKey;
-            }
-        });
-
-        // 上传图片预览
-        imageUpload.addEventListener('change', (e) => {
-            thumbnailsContainer.innerHTML = '';
-            const files = e.target.files;
-            
-            if (files.length > 0) {
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const reader = new FileReader();
+                
+                if (!prompt) {
+                    alert('请输入提示词');
+                    return;
+                }
+                
+                // 显示加载状态
+                generateBtn.querySelector('.btn-text').classList.add('hidden');
+                generateBtn.querySelector('.spinner').classList.remove('hidden');
+                generateBtn.disabled = true;
+                
+                try {
+                    // 调用生成函数
+                    const result = await generateImage(apiKey, prompt, uploadedImages);
                     
-                    reader.onload = (event) => {
-                        const thumbnail = document.createElement('div');
-                        thumbnail.className = 'relative w-24 h-24 rounded-md overflow-hidden border border-gray-200';
-                        thumbnail.innerHTML = `
-                            <img src="${event.target.result}" alt="上传图片预览" class="w-full h-full object-cover">
-                            <button class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors remove-thumbnail">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        `;
-                        thumbnailsContainer.appendChild(thumbnail);
-                        
-                        // 添加删除缩略图功能
-                        thumbnail.querySelector('.remove-thumbnail').addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            thumbnail.remove();
-                            // 重置file input以允许重新选择相同文件
-                            imageUpload.value = '';
-                        });
+                    // 显示结果
+                    resultImageContainer.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = result.imageUrl;
+                    img.alt = '生成结果';
+                    resultImageContainer.appendChild(img);
+                    
+                    // 保存到历史记录
+                    const historyItem = {
+                        id: Date.now(),
+                        imageUrl: result.imageUrl,
+                        prompt: prompt,
+                        date: new Date().toLocaleString()
                     };
                     
-                    reader.readAsDataURL(file);
+                    history.unshift(historyItem);
+                    localStorage.setItem('aiHistory', JSON.stringify(history));
+                    
+                    // 更新历史记录显示
+                    renderHistory();
+                } catch (error) {
+                    console.error('生成失败:', error);
+                    alert('生成失败，请重试');
+                } finally {
+                    // 恢复按钮状态
+                    generateBtn.querySelector('.btn-text').classList.remove('hidden');
+                    generateBtn.querySelector('.spinner').classList.add('hidden');
+                    generateBtn.disabled = false;
                 }
-            }
-        });
-
-        // 生成按钮点击事件
-        generateBtn.addEventListener('click', async () => {
-            const apiKey = apiKeyInput.value.trim();
-            const prompt = promptInput.value.trim();
+            });
             
-            // 验证输入
-            if (!apiKey) {
-                alert('请输入柳职大AIGC项目组密钥');
-                return;
+            // 清除历史记录
+            clearHistoryBtn.addEventListener('click', function() {
+                if (confirm('确定要清除所有历史记录吗？')) {
+                    history = [];
+                    localStorage.removeItem('aiHistory');
+                    renderHistory();
+                }
+            });
+            
+            // 关闭模态框
+            closeModal.addEventListener('click', function() {
+                imageModal.style.display = 'none';
+            });
+            
+            // 点击模态框外部关闭
+            imageModal.addEventListener('click', function(e) {
+                if (e.target === imageModal) {
+                    imageModal.style.display = 'none';
+                }
+            });
+            
+            // 渲染历史记录
+            function renderHistory() {
+                historyGrid.innerHTML = '';
+                
+                if (history.length === 0) {
+                    historyGrid.innerHTML = '<div class="empty-history">暂无历史记录，生成图片后将显示在这里</div>';
+                    return;
+                }
+                
+                history.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.dataset.id = item.id;
+                    
+                    historyItem.innerHTML = `
+                        <img class="history-thumbnail" src="${item.imageUrl}" alt="历史图片">
+                        <div class="history-info">
+                            <div class="history-prompt" title="${item.prompt}">${item.prompt}</div>
+                            <div class="history-date">${item.date}</div>
+                        </div>
+                    `;
+                    
+                    historyItem.addEventListener('click', function() {
+                        openHistoryItem(item);
+                    });
+                    
+                    historyGrid.appendChild(historyItem);
+                });
             }
             
-            if (!prompt) {
-                alert('请输入提示词');
-                return;
+            // 打开历史记录详情
+            function openHistoryItem(item) {
+                modalImage.src = item.imageUrl;
+                modalPrompt.textContent = item.prompt;
+                imageModal.style.display = 'flex';
             }
             
-            // 保存API密钥到localStorage
-            localStorage.setItem('savedApiKey', apiKey);
+            // 拖拽上传功能
+            const uploadArea = document.querySelector('.upload-area');
             
-            // 显示加载状态
-            btnText.textContent = '生成中...';
-            spinner.classList.remove('hidden');
-            generateBtn.disabled = true;
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#ff8c00';
+                this.style.backgroundColor = 'rgba(255, 140, 0, 0.1)';
+            });
             
-            try {
-                // 这里是模拟生成过程，实际项目中应该替换为真实API调用
-                console.log('调用API生成图片...');
-                console.log('API Key:', apiKey);
-                console.log('提示词:', prompt);
+            uploadArea.addEventListener('dragleave', function() {
+                this.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                this.style.backgroundColor = '';
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                this.style.backgroundColor = '';
                 
-                // 模拟网络延迟
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                const files = Array.from(e.dataTransfer.files);
+                handleFiles(files);
+            });
+            
+            function handleFiles(files) {
+                uploadedImages = [];
+                thumbnailsContainer.innerHTML = '';
                 
-                // 模拟生成结果（实际项目中应该使用API返回的图片URL）
-                // 这里使用picsum作为示例图片
-                const randomId = Math.floor(Math.random() * 1000);
-                const imageUrl = `https://picsum.photos/800/600?random=${randomId}`;
-                
-                // 显示生成结果
-                resultImageContainer.innerHTML = `
-                    <img src="${imageUrl}" alt="生成的图片" class="max-w-full max-h-[600px] object-contain rounded-lg shadow-md">
-                `;
-                
-                // 保存到历史记录
-                HistoryManager.saveHistory(prompt, imageUrl);
-                
-            } catch (error) {
-                console.error('生成失败:', error);
-                resultImageContainer.innerHTML = `<p class="text-red-500">生成失败: ${error.message}</p>`;
-            } finally {
-                // 恢复按钮状态
-                btnText.textContent = '生成';
-                spinner.classList.add('hidden');
-                generateBtn.disabled = false;
-            }
-        });
-
-        // 历史记录面板控制
-        historyToggle.addEventListener('click', () => {
-            historyPanel.classList.toggle('translate-x-full');
-        });
-
-        closeHistory.addEventListener('click', () => {
-            historyPanel.classList.add('translate-x-full');
-        });
-
-        // 清空历史记录
-        clearHistory.addEventListener('click', () => {
-            if (confirm('确定要清空所有历史记录吗？此操作不可恢复。')) {
-                HistoryManager.clearHistories();
-            }
-        });
-
-        // 关闭历史详情模态框
-        closeDetail.addEventListener('click', () => {
-            historyDetailModal.classList.add('hidden');
-        });
-
-        // 点击模态框外部关闭
-        historyDetailModal.addEventListener('click', (e) => {
-            if (e.target === historyDetailModal) {
-                historyDetailModal.classList.add('hidden');
+                files.forEach(file => {
+                    if (file.type.match('image.*')) {
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.classList.add('thumbnail');
+                            thumbnailsContainer.appendChild(img);
+                            
+                            uploadedImages.push(e.target.result);
+                        };
+                        
+                        reader.readAsDataURL(file);
+                    }
+                });
             }
         });
     </script>
