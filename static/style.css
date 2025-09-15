@@ -3,7 +3,8 @@
 /* 主题颜色变量 */
 :root {
     --gradient-start: #1e3a8a;
-    --gradient-end: #f97316;
+    --gradient-mid: #3b82f6;
+    --gradient-end: #ef4444;
     --font-family: 'Roboto', sans-serif;
 }
 
