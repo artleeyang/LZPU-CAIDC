@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片生成</title>
-    <link rel="icon" href="/xiguadepi.jpeg" type="image/jpeg">
+    <title>柳州职业技术大学 AI商业应用模型测试版（微调模型已绑定）</title>
+    <link rel="icon" href="/LZPU.png" type="image/jpeg">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -23,11 +23,11 @@
     <h1 class="title">图片生成</h1>
 
     <div class="model-selector-container">
-        <div class="model-card active" data-model="Qwen/Qwen-Image">Qwen-Image</div>
-        <div class="model-card" data-model="MusePublic/489_ckpt_FLUX_1">Flux</div>
-        <div class="model-card" data-model="MusePublic/FLUX.1-Kontext-Dev">Kontext</div>
-        <div class="model-card" data-model="black-forest-labs/FLUX.1-Krea-dev">Krea</div>
-        <div class="model-card" data-model="nanobanana">Nano Banana</div>
+        <div class="model-card active" data-model="Qwen/Qwen-Image">使用Qwen模型</div>
+        <div class="model-card" data-model="MusePublic/489_ckpt_FLUX_1">使用Flux模型</div>
+        <div class="model-card" data-model="MusePublic/FLUX.1-Kontext-Dev">Kontext图片后期</div>
+        <div class="model-card" data-model="black-forest-labs/FLUX.1-Krea-dev">使用Krea模型</div>
+        <div class="model-card" data-model="nanobanana">NB图片后期</div>
     </div>
 
     <div class="main-container">
@@ -39,7 +39,7 @@
             <div id="nanobanana-controls" class="hidden">
                 <div class="api-key-section">
                     <h2>设置 <span class="prompt-remark">(请注意目前调用的是付费的Nano Banana模型)</span></h2>
-                    <input type="password" id="api-key-input-openrouter" placeholder="输入你的 OpenRouter API 密钥 (必填)">
+                    <input type="password" id="api-key-input-openrouter" placeholder="请输入柳职大AIGC中心秘钥 (必填)">
                 </div>
                 <div class="upload-section">
                     <h2>1. 上传图片 (可选)</h2>
